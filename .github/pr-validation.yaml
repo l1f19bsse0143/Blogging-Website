@@ -1,0 +1,87 @@
+name: Pull Request Workflow
+
+on:
+  pull_request:
+    branches:
+      - develop
+
+jobs:
+  linting:
+    name: Linting Job
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v3
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: '16'
+
+      - name: Install Linting Tools
+        run: |
+          npm install -g htmlhint stylelint stylelint-config-standard
+
+      - name: Lint HTML Files
+        run: |
+          htmlhint "**/*.html" --rules "{
+            \"tagname-lowercase\": true,
+            \"attr-lowercase\": true,
+            \"alt-require\": true,
+            \"id-unique\": true,
+            \"tag-pair\": true
+          }"
+
+      - name: Lint CSS Files
+        run: |
+          echo "{" > .stylelintrc.json
+          echo "  \"rules\": {" >> .stylelintrc.json
+          echo "    \"declaration-block-no-duplicate-properties\": true," >> .stylelintrc.json
+          echo "    \"no-duplicate-selectors\": true," >> .stylelintrc.json
+          echo "    \"property-case\": \"lower\"," >> .stylelintrc.json
+          echo "    \"value-keyword-case\": \"lower\"," >> .stylelintrc.json
+          echo "    \"selector-type-case\": \"lower\"," >> .stylelintrc.json
+          echo "    \"block-no-empty\": true" >> .stylelintrc.json
+          echo "  }" >> .stylelintrc.json
+          echo "}" >> .stylelintrc.json
+          stylelint "**/*.css"
+
+  build:
+    name: Build Static Website
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v3
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: '16'
+
+      - name: Install Dependencies
+        run: npm install
+
+      - name: Build Project with Parcel
+        run: npx parcel build index.html
+
+  tests:
+    name: Run Tests
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v3
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: '16'
+
+      - name: Install Dependencies
+        run: npm install
+
+      - name: Run Tests
+        run: npm test
+
