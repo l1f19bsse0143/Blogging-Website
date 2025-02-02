@@ -85,3 +85,15 @@ jobs:
       - name: Run Tests
         run: npm test
 
+branch_protection_rules:
+  - branch: develop
+    required_approving_review_count: 1
+    require_status_checks: true
+    required_status_checks:
+      - name: Linting Job
+      - name: Build Static Website
+      - name: Run Tests
+    require_up_to_date_branch: true
+    require_conversation_resolution: true
+    restrict_push_access: true
+
